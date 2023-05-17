@@ -1,0 +1,16 @@
+.scanner-container {
+  max-width: 100vw;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+img,
+canvas {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.selected {
+  outline: 5px solid orange
+}

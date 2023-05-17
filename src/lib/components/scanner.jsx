@@ -1,29 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
+import './scanner.css';
+
+const images = [{ src: '/paper-high.png' }, { src: '/paper-2.png' }];
 
 export const Scanner = () => {
-  const imgRef = useRef(null);
   const containerRef = useRef(null);
+  const openCvURL = 'https://docs.opencv.org/4.7.0/opencv.js';
 
   const [loadedOpenCV, setLoadedOpenCV] = useState(false);
-  const openCvURL = 'https://docs.opencv.org/4.7.0/opencv.js';
+  const [selectedImage, setSelectedImage] = useState(undefined);
 
   useEffect(() => {
     // eslint-disable-next-line no-undef
     const scanner = new jscanify();
     loadOpenCv(() => {
-      const newImg = document.createElement('img');
-      newImg.src = imgRef.current.src;
+      if (selectedImage) {
+        containerRef.current.innerHTML = '';
+        const newImg = document.createElement('img');
+        newImg.src = selectedImage.src;
 
-      newImg.onload = function () {
-        const resultCanvas = scanner.extractPaper(newImg, 386, 500);
-        containerRef.current.append(resultCanvas);
+        newImg.onload = function () {
+          const resultCanvas = scanner.extractPaper(newImg, 386, 500);
+          containerRef.current.append(resultCanvas);
 
-        const highlightedCanvas = scanner.highlightPaper(newImg);
-        containerRef.current.append(highlightedCanvas);
-      };
+          const highlightedCanvas = scanner.highlightPaper(newImg);
+          containerRef.current.append(highlightedCanvas);
+        };
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedImage]);
 
   const loadOpenCv = (onComplete) => {
     const isScriptPresent = !!document.getElementById('open-cv');
@@ -47,13 +53,24 @@ export const Scanner = () => {
 
   return (
     <>
-      {!loadedOpenCV && (
+      <div className="scanner-container">
         <div>
-          <h2>Loading OpenCV...</h2>
+          {!loadedOpenCV && (
+            <div>
+              <h2>Loading OpenCV...</h2>
+            </div>
+          )}
+          {images.map((image, index) => (
+            <img
+              key={index}
+              className={selectedImage && selectedImage.src === image.src ? 'selected' : ''}
+              src={image.src}
+              onClick={() => setSelectedImage(image)}
+            />
+          ))}
         </div>
-      )}
-      <img ref={imgRef} src="/paper-high.png" alt="Piece of paper on a table" />
-      <div ref={containerRef} id="result-container"></div>
+        <div ref={containerRef} id="result-container"></div>
+      </div>
     </>
   );
 };
